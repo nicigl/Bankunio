@@ -1,0 +1,457 @@
+#include <Servo.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+Servo myservo; 
+Servo myservo2;  
+int var = 1;
+const int coinInt = 0;    //Attach coinInt to Interrupt Pin 0 (Digital Pin 2). Pin 3 = Interrpt Pin 
+volatile float coinsValue = 0.00;
+int coinsChange = 0;       
+const int buttonPin = 1;
+const int buttonPin2 = 3;
+const int buttonPin3 = 4;
+const int buttonPin4 = 5;
+int buttonState  = 2;
+int buttonState2 = 2;
+int buttonState3 = 2;
+int buttonState4 = 2;
+int Geld = 0;
+
+void setup()
+{
+myservo.attach(9); 
+myservo2.attach(10); 
+myservo3.attach();
+myservo4.attach();
+myservo5.attach();
+myservo6.attach():
+pinMode(buttonPin, INPUT);
+        lcd.init();  
+        lcd.backlight();
+        lcd.clear():
+      Serial.begin(9600);                 
+      attachInterrupt(coinInt, coinInserted, RISING);   
+          lcd.setCursor(0,0);              // Der Cursor wird in die linke obere Ecke gesetzt (Spalte 0, Zeile 0)
+  	    lcd.print("Willkommen beim");  
+          lcd.setCursor(0,1);              // Der Cursor wird in die erste Spalte (0) in der zweiten Zeile (1)
+         lcd.print("Bankuino");
+            delay(2000);
+         lcd.clear();
+            lcd.setCursor(0,0) ;
+         lcd.print("Geben sie den");
+            lcd.setCursor(0,1);
+         lcd.print("gewuenschten");
+            delay(1000);
+         lcd.clear();
+            lcd.setCursor(0,0);
+         lcd.print("Betrag an");
+ 
+}
+void coinInserted()    //The function that is called every time it recieves a pulse
+{
+  coinsValue = coinsValue + 0.5;  //As we set the Pulse to represent 5p or 5c we add this to the coinsValue
+  coinsChange = 1;
+  delay(250);                           //Flag that there has been a coin inserted
+}
+
+void loop() {
+
+buttonState = digitalRead(buttonPin);
+buttonState2 = digitalRead(buttonPin2);
+buttonState3 = digitalRead(buttonPin3);
+buttonState4 = digitalRead(buttonPin4);
+
+//lcd.setCursor(0,0);
+//lcd.print(Geld);
+//delay(1000);
+//lcd.clear();
+//lcd.print(Geld);
+
+if(coinsChange == 1)          //Check if a coin has been Inserted
+  {
+    coinsChange = 0;              //unflag that a coin has been inserted
+    lcd.clear();
+    lcd.setCursor(0,1);
+    lcd.print("Betrag:");
+    lcd.print(coinsValue);    //Print the Value of coins inserted
+    
+    
+}
+
+if (buttonState==LOW)
+{
+var=0; buttonState = digitalRead(buttonPin);
+}  
+if (buttonState==HIGH)
+{
+var=1; buttonState = digitalRead(buttonPin);
+}
+
+if (buttonState2==HIGH)
+{
+lcd.clear();
+Geld=Geld+5;
+lcd.print(Geld);
+lcd.setCursor(4,0);
+lcd.print("Remstali");
+
+if (Geld > 100) 
+{
+  lcd.clear();
+  lcd.print("Maximum erreicht"); 
+  delay(500);
+  Geld=100;
+  lcd.clear();
+  lcd.print(Geld); 
+  lcd.setCursor(4,0);
+  lcd.print("Remstali"); 
+}
+if (Geld < 0) 
+{
+  lcd.clear();
+  lcd.print("Minimum erreicht"); 
+  delay(500);
+  Geld=0;
+  lcd.clear();
+  lcd.print(Geld); 
+  lcd.setCursor(4,0);
+  lcd.print("Remstali"); 
+}
+delay(500);
+}
+
+if (buttonState3==HIGH)
+{
+lcd.clear();
+Geld=Geld-5;
+lcd.print(Geld);
+lcd.setCursor(4,0);
+lcd.print("Remstali");
+
+if (Geld > 100) 
+{
+  lcd.clear();
+  lcd.print("Maximum erreicht"); 
+  delay(500);
+  Geld=100;
+  lcd.clear();
+  lcd.print(Geld);  
+  lcd.setCursor(4,0);
+  lcd.print("Remstali");
+}
+if (Geld < 0) 
+{
+  lcd.clear();
+  lcd.print("Minimum erreicht"); 
+  delay(500);
+  Geld=0;
+  lcd.clear();
+  lcd.print(Geld);  
+  lcd.setCursor(4,0);
+  lcd.print("Remstali");
+} 
+delay(500);
+}
+ 
+
+if (buttonState4==HIGH)
+{
+lcd.clear();
+lcd.print("Beginne");
+lcd.setCursor(0,1);
+lcd.print("Transaktion");
+delay(500);
+
+
+if ((Geld == 5) && (coinsValue == 0,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(1000);
+  myservo.write(90);
+  myservo2.write(91);
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld == 5) && (coinsValue < 0,5))  
+{
+  lcd.setCursor(0,0);
+  lcd.print("Transaktion");
+  lcd.setCursor(0,1);
+  lcd.print("fehlgeschlagen");
+  delay(1000);
+  lcd.setCursor(0,0);
+  lcd.print("Zu wenig Geld");
+  lcd.setCursor(0,1);
+  lcd.print("eingeworfen");
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(Geld);
+  lcd.setCursor(4,0);
+  lcd.print("Remstali");
+//  lcd.setCursor(0,1);
+//  lcd.print("Eingeworfen:");
+//  lcd.setCursor(13,1);
+//  lcd.print(coinsValue);
+    
+}
+
+if ((Geld == 5) && (coinsValue > 0,5))  
+{
+  lcd.setCursor(0,0);
+  lcd.print("Transaktion");
+  lcd.setCursor(0,1);
+  lcd.print("fehlgeschlagen");
+  delay(1000);
+  lcd.clear();
+  lcd.print("Zu viel Geld ")
+  lcd.setCursor(0,1)
+  lcd.print("eingeworfen")
+  delay(1000);
+  myservo6.write(90);
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==10) && (coinsValue == 1,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(2000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==15) && (coinsValue == 1,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(3000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==20) && (coinsValue == 2,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}  
+  
+if ((Geld==25) && (coinsValue == 2,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(5000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==30) && (coinsValue == 3,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==35) && (coinsValue == 3,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==40) && (coinsValue == 4,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==45)  && (coinsValue == 4,5))   
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==50) && (coinsValue == 5,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==55) && (coinsValue == 5,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==60) && (coinsValue == 6,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==65) && (coinsValue == 6,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==70) && (coinsValue == 7,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==75) && (coinsValue == 7,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==80) && (coinsValue == 8,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==85) && (coinsValue == 8,5))   
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==90) && (coinsValue == 9,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==95) && (coinsValue == 9,5))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+
+if ((Geld==100) && (coinsValue == 10,0))  
+{
+  myservo.write(180);
+  myservo2.write(180);
+  delay(4000);
+  myservo.write(90);
+  myservo2.write(91); 
+  Geld=0;
+  coinsValue=0;
+}
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Transaktion");
+  lcd.setCursor(0,1);
+  lcd.print("abgeschlossen");
+  delay(1000);
+  lcd.clear();
+  lcd.print(Geld);  
+  lcd.setCursor(4,0);
+  lcd.print("Remstali");
+
+}
+
+if (var==0)
+{    
+  buttonState = digitalRead(buttonPin);
+  myservo.write(180);
+  myservo2.write(0);  
+  delay(0);                          
+} 
+
+if (var==1)
+{    
+  buttonState = digitalRead(buttonPin);
+  myservo.write(90);
+  myservo2.write(91); 
+  delay(0);       
+} 
+
+}
